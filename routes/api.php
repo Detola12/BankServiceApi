@@ -18,6 +18,10 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::post('/account/generate', [\App\Http\Controllers\AccountController::class, 'generate']);
     Route::post('/account/set-pin', [\App\Http\Controllers\AccountController::class, 'addPin'])->name('set-pin');
     Route::get('/account/{id}', [\App\Http\Controllers\AccountController::class, 'getAccountById'])->name('getAccountById');
+    Route::post('/deposit', [\App\Http\Controllers\TransactionController::class, 'deposit'])->name('deposit');
+    Route::post('/withdraw', [\App\Http\Controllers\TransactionController::class, 'withdraw'])->name('withdraw');
+    Route::post('/transfer', [\App\Http\Controllers\TransactionController::class, 'transfer'])->name('transfer');
+
 
     Route::get('/test', function (Request $request) {
         if(ctype_digit("1019")){

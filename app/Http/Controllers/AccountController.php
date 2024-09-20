@@ -27,6 +27,16 @@ class AccountController extends Controller
         return $response->compose();
     }
 
+    public function resetPin(Request $request)
+    {
+        $request->validate([
+            'pin' => ['required','string','min:4','max:4'],
+        ]);
+
+        $response = $this->accountService->resetPin($request->user(), $request->pin);
+        return $response->compose();
+    }
+
     public function getAccountById($id)
     {
         $response = $this->accountService->getAccountById($id);

@@ -23,4 +23,8 @@ interface AccountServiceInterface
 
     public function validatePin(string $pin) : bool;
 
+    public function resetPin(User $user,string $newPin) : AccountResponse;
+
+    public function verifyPin(User $user, string $pin) : bool;
+
 }
