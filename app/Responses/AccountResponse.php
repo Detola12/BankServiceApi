@@ -2,7 +2,7 @@
 
 namespace App\Responses;
 
-class UserResponse extends BaseResponse
+class AccountResponse extends BaseResponse
 {
     private int $code;
 

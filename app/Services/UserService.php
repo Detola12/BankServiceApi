@@ -28,9 +28,10 @@ class UserService implements UserServiceInterface
     }
 
     /**
-     *
+     * @param UserDto $userDto
+     * @return UserResponse
      */
-    public function register(UserDto $userDto): BaseResponse
+    public function register(UserDto $userDto): UserResponse
     {
         $response = new UserResponse();
         try {
@@ -44,7 +45,7 @@ class UserService implements UserServiceInterface
             ]);
             Auth::login($user);
             $user->notify(new UserCreated($user));
-            $token = $user->createToken($userDto->getEmail(), ['*'], now()->addMinutes(10))->plainTextToken;
+            $token = $user->createToken($userDto->getEmail(), ['*'], now()->addHour())->plainTextToken;
 
             $response->setSuccess(true);
             $response->setMessage('User Created Successfully');
@@ -63,9 +64,11 @@ class UserService implements UserServiceInterface
     }
 
     /**
-     *
+     * @param string $email
+     * @param string $password
+     * @return UserResponse
      */
-    public function login(string $email, string $password): BaseResponse
+    public function login(string $email, string $password): UserResponse
     {
         $response = new UserResponse();
         try {
@@ -77,7 +80,7 @@ class UserService implements UserServiceInterface
                 return $response;
             }
             Auth::attempt(['email' => $email,'password' => $password]);
-            $token = $user->createToken($email, ['*'], now()->addMinutes(10))->plainTextToken;
+            $token = $user->createToken($email, ['*'], now()->addHour())->plainTextToken;
             $response->setSuccess(true);
             $response->setMessage('Login Successfully');
             $response->setData(['token' => $token]);
@@ -95,20 +98,35 @@ class UserService implements UserServiceInterface
 
     /**
      * @param int $id
-     * @return UserDto|Model
+     * @return UserResponse
      */
-    public function getUserById(int $id): UserDto|Model
+    public function getUserById(int $id): UserResponse
     {
-        // TODO: Implement getUserById() method.
+        $user = User::where('id', $id)->first();
+        $response = new UserResponse();
+        if(!$user){
+            $response->setSuccess(false);
+            $response->setMessage('User not found');
+            $response->setCode(404);
+            return $response;
+        }
+
+        $response->setSuccess(true);
+        $response->setMessage('User details fetched');
+        $userDto = UserDto::FromModelToArray($user);
+        $response->setData(['user' => $userDto]);
+        return $response;
+
+
     }
 
     /**
-     * @return BaseResponse
+     * @return UserResponse
      */
-    public function logout(Request $request): BaseResponse
+    public function logout(Request $request): UserResponse
     {
     $request->user()->tokens()->delete();
-        $response = new BaseResponse();
+        $response = new UserResponse();
         $response->setSuccess(true);
         $response->setMessage('Logout Successful');
 

@@ -125,7 +125,7 @@ class UserDto implements UserDtoInterface
      * @param Model $userModel
      * @return array|Collection
      */
-    public function FromModelToArray(Model $userModel): array|Collection
+    public static function FromModelToArray(Model $userModel): array|Collection
     {
         return [
             'first_name' => $userModel->first_name,
@@ -147,4 +147,6 @@ class UserDto implements UserDtoInterface
             'password' => $request->password
         ];
     }
+
+
 }
