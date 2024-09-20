@@ -72,21 +72,21 @@ class BaseResponse
             return response()->json([
                 'success' => $this->isSuccess(),
                 'message' => $this->getMessage(),
-            ]);
+            ], 400);
         }
 
         if (!isset($this->data)){
             return response()->json([
                 'success' => $this->isSuccess(),
                 'message' => $this->getMessage(),
-            ]);
+            ], 200);
         }
 
         return response()->json([
             'success' => $this->isSuccess(),
             'message' => $this->getMessage(),
             'data' => $this->getData()
-        ]);
+        ], 200);
     }
 
 

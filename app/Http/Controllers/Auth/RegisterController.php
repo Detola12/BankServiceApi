@@ -20,6 +20,5 @@ class RegisterController extends Controller
         $userDto = UserDto::FromCreateRequestToModel($request);
         $response = $this->userService->register($userDto);
         return $response->compose();
-
     }
 }

@@ -13,5 +13,5 @@ interface UserDtoInterface
 
     public static function FromLoginRequestToArray(LoginRequest $request) : array;
 
-    public function FromModelToArray(Model $userModel) : array | Collection;
+    public static function FromModelToArray(Model $userModel) : array | Collection;
 }
