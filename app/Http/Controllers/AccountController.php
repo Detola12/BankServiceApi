@@ -18,12 +18,28 @@ class AccountController extends Controller
         return $response->compose();
     }
 
+    public function getAllAccounts()
+    {
+        $response = $this->accountService->getAllAccounts();
+        return $response->compose();
+    }
+
     public function addPin(Request $request)
     {
         $request->validate([
             'pin' => ['required','string', 'min:4', 'max:4']
         ]);
         $response = $this->accountService->setTransactionPin($request->user(), $request->pin);
+        return $response->compose();
+    }
+
+    public function resetPin(Request $request)
+    {
+        $request->validate([
+            'pin' => ['required','string','min:4','max:4'],
+        ]);
+
+        $response = $this->accountService->resetPin($request->user(), $request->pin);
         return $response->compose();
     }
 

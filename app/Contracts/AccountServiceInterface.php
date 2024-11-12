@@ -19,8 +19,14 @@ interface AccountServiceInterface
 
     public function getAccountByUserId(int $user_id) : AccountResponse;
 
+    public function getAllAccounts() : AccountResponse;
+
     public function getAccountById(int $id) : AccountResponse;
 
     public function validatePin(string $pin) : bool;
+
+    public function resetPin(User $user,string $newPin) : AccountResponse;
+
+    public function verifyPin(User $user, string $pin) : bool;
 
 }

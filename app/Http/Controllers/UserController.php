@@ -16,4 +16,10 @@ class UserController extends Controller
         $response = $this->userService->getUserById($user);
         return $response->compose();
     }
+
+    public function getAllUser()
+    {
+        $response = $this->userService->getAllUsers();
+        return $response->compose();
+    }
 }

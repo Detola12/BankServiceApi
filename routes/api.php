@@ -15,9 +15,15 @@ Route::post('/login', [\App\Http\Controllers\Auth\SessionController::class, 'log
 Route::middleware('auth:sanctum')->group(function (){
     Route::post('/logout', [\App\Http\Controllers\Auth\SessionController::class, 'logout'])->name('logout');
     Route::get('/user/{user:id}', [\App\Http\Controllers\UserController::class, 'getUserById'])->name('get-user');
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'getAllUser'])->name('get-all-users');
     Route::post('/account/generate', [\App\Http\Controllers\AccountController::class, 'generate']);
     Route::post('/account/set-pin', [\App\Http\Controllers\AccountController::class, 'addPin'])->name('set-pin');
     Route::get('/account/{id}', [\App\Http\Controllers\AccountController::class, 'getAccountById'])->name('getAccountById');
+    Route::get('/accounts', [\App\Http\Controllers\AccountController::class, 'getAllAccounts'])->name('getAllAccounts');
+    Route::post('/deposit', [\App\Http\Controllers\TransactionController::class, 'deposit'])->name('deposit');
+    Route::post('/withdraw', [\App\Http\Controllers\TransactionController::class, 'withdraw'])->name('withdraw');
+    Route::post('/transfer', [\App\Http\Controllers\TransactionController::class, 'transfer'])->name('transfer');
+
 
     Route::get('/test', function (Request $request) {
         if(ctype_digit("1019")){

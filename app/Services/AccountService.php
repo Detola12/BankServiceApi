@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\AccountServiceInterface;
 use App\Dtos\AccountDto;
+use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use App\Models\User;
 use App\Responses\AccountResponse;
@@ -213,5 +214,68 @@ class AccountService implements AccountServiceInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param User $user
+     * @param string $newPin
+     * @return AccountResponse
+     */
+    public function resetPin(User $user, string $newPin): AccountResponse
+    {
+        $response = new AccountResponse();
+        try {
+            if (!$this->validatePin($newPin)){
+                $response->setSuccess(false);
+                $response->setMessage('Not a valid pin');
+                return $response;
+            }
+
+            if (!$this->hasAccount($user)) {
+                $response->setSuccess(false);
+                $response->setMessage('User does not have an account');
+                return $response;
+            }
+
+            Account::where('user_id', $user->id)
+                ->update(['pin' => Hash::make($newPin)]);
+
+            $response->setSuccess(true);
+            $response->setMessage('Pin added');
+            return $response;
+
+        }
+        catch (\Exception $exception){
+            Log::error('Something went wrong : ' . $exception);
+            $response->setSuccess(false);
+            $response->setMessage('Something went wrong');
+            return $response;
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param string $pin
+     * @return bool
+     */
+    public function verifyPin(User $user, string $pin): bool
+    {
+        if (Hash::check($pin, $user->account->pin)){
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getAllAccounts(): AccountResponse
+    {
+        $accounts = Account::all();
+        $response = new AccountResponse();
+
+        $response->setSuccess(true);
+        $response->setMessage('Accounts detail fetched');
+        $accountDto = AccountResource::collection($accounts);
+        $response->setData(['accounts' => $accountDto]);
+        return $response;
     }
 }

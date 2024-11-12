@@ -14,5 +14,10 @@ class AccountPolicy
         return $user->id == $id;
     }*/
 
+    /*public function editPin(User $user, Account $account)
+    {
+        return $user->id === $account->user_id;
+    }*/
+
 
 }
