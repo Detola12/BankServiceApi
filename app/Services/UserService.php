@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\UserServiceInterface;
 use App\Dtos\UserDto;
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\UserCreated;
 use App\Responses\BaseResponse;
@@ -116,8 +117,18 @@ class UserService implements UserServiceInterface
         $userDto = UserDto::FromModelToArray($user);
         $response->setData(['user' => $userDto]);
         return $response;
+    }
 
+    public function getAllUsers()
+    {
+        $user = User::all();
+        $response = new UserResponse();
 
+        $response->setSuccess(true);
+        $response->setMessage('Users detail fetched');
+        $userDto = UserResource::collection($user);
+        $response->setData(['user' => $userDto]);
+        return $response;
     }
 
     /**

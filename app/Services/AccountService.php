@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\AccountServiceInterface;
 use App\Dtos\AccountDto;
+use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use App\Models\User;
 use App\Responses\AccountResponse;
@@ -264,5 +265,17 @@ class AccountService implements AccountServiceInterface
         }
 
         return false;
+    }
+
+    public function getAllAccounts(): AccountResponse
+    {
+        $accounts = Account::all();
+        $response = new AccountResponse();
+
+        $response->setSuccess(true);
+        $response->setMessage('Accounts detail fetched');
+        $accountDto = AccountResource::collection($accounts);
+        $response->setData(['accounts' => $accountDto]);
+        return $response;
     }
 }

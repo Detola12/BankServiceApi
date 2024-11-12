@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\AccountService;
 use App\Services\TransactionService;
 use Illuminate\Http\Request;
@@ -30,6 +31,8 @@ class TransactionController extends Controller
             'amount' => ['required', 'min:0', 'decimal:0,2']
         ]);
 
+        $this->checkPin($request->user(), $request->pin);
+
         $response = $this->transactionService->initiateWithdraw($request->user(), $request->amount);
         return $response->compose();
     }
@@ -42,15 +45,27 @@ class TransactionController extends Controller
             'amount' => ['required', 'min:0', 'decimal:0,2']
         ]);
 
-        $checkPin = $this->accountService->verifyPin($request->user(), $request->pin);
+        $this->checkPin($request->user(), $request->pin);
+
+        $response = $this->transactionService->initiateTransfer($request->user(), $request->account_no, $request->amount);
+        return $response->compose();
+    }
+
+    protected function checkPin(User $user, $pin)
+    {
+        $hasPin = $this->accountService->hasSetupPin($user);
+        if (!$hasPin){
+            return response()->json([
+                'success' => false,
+                'message' => 'Pin has not been set'
+            ], 400);
+        }
+        $checkPin = $this->accountService->verifyPin($user, $pin);
         if (!$checkPin){
             return response()->json([
                 'success' => false,
                 'message' => 'Incorrect Pin'
-            ]);
+            ], 400);
         }
-
-        $response = $this->transactionService->initiateTransfer($request->user(), $request->account_no, $request->amount);
-        return $response->compose();
     }
 }

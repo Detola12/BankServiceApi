@@ -18,6 +18,12 @@ class AccountController extends Controller
         return $response->compose();
     }
 
+    public function getAllAccounts()
+    {
+        $response = $this->accountService->getAllAccounts();
+        return $response->compose();
+    }
+
     public function addPin(Request $request)
     {
         $request->validate([
