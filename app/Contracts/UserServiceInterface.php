@@ -11,11 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface UserServiceInterface
 {
-    public function register(UserDto $userDto) : UserResponse;
-
-    public function login(string $email, string $password) : UserResponse;
-
-    public function logout(Request $request) : UserResponse ;
-
     public function getUserById(int $id) : UserResponse;
+
+    public function getAllUsers(int $size) : UserResponse;
 }

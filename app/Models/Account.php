@@ -13,6 +13,7 @@ class Account extends Model
     protected $fillable = [
         'user_id',
         'account_no',
+        'account_type',
         'pin'
     ];
 
@@ -22,6 +23,12 @@ class Account extends Model
             'pin' => 'hashed'
         ];
     }
+
+    protected $hidden = [
+        'updated_at',
+        'balance',
+        'pin'
+    ];
 
     public function user() : BelongsTo
     {

@@ -8,7 +8,6 @@ use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use App\Models\User;
 use App\Responses\AccountResponse;
-use App\Responses\UserResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -27,13 +26,13 @@ class AccountService implements AccountServiceInterface
      * @param User $user
      * @return AccountResponse
      */
-    public function generateAccount(User $user): AccountResponse
+    public function generateAccount(User $user, int $type): AccountResponse
     {
         $response = new AccountResponse();
         try {
             if ($this->hasAccount($user)){
                 $response->setSuccess(false);
-                $response->setMessage('User already as an account');
+                $response->setMessage(__('User already as an account'));
                 return $response;
             }
 
@@ -41,21 +40,22 @@ class AccountService implements AccountServiceInterface
             $account = Account::where('account_no', $accountNo)->first();
 
             if ($account) {
-                return $this->generateAccount($user);
+                return $this->generateAccount($user, $type);
             }
             $user->account()->create([
-                'account_no' => $accountNo
+                'account_no' => $accountNo,
+                'account_type' => $type
             ]);
 
             $response->setSuccess(true);
-            $response->setMessage('Account successfully generated');
+            $response->setMessage(__('Account successfully generated'));
             return $response;
         }
         catch (\Exception $exception)
         {
-            Log::error('Something went wrong : ' . $exception);
+            Log::error(__('Something went wrong : ' . $exception));
             $response->setSuccess(false);
-            $response->setMessage('Could not generate account');
+            $response->setMessage(__('Could not generate account'));
             return $response;
         }
 
@@ -72,19 +72,19 @@ class AccountService implements AccountServiceInterface
         try {
             if ($this->hasSetupPin($user)){
                 $response->setSuccess(false);
-                $response->setMessage('User already has a pin');
+                $response->setMessage(__('User already has a pin'));
                 return $response;
             }
 
             if (!$this->validatePin($pin)){
                 $response->setSuccess(false);
-                $response->setMessage('Not a valid pin');
+                $response->setMessage(__('Not a valid pin'));
                 return $response;
             }
 
             if (!$this->hasAccount($user)) {
                 $response->setSuccess(false);
-                $response->setMessage('User does not have an account');
+                $response->setMessage(__('User does not have an account'));
                 return $response;
             }
 
@@ -92,14 +92,14 @@ class AccountService implements AccountServiceInterface
                 ->update(['pin' => Hash::make($pin)]);
 
             $response->setSuccess(true);
-            $response->setMessage('Pin added');
+            $response->setMessage(__('Pin added'));
             return $response;
 
         }
         catch (\Exception $exception){
             Log::error('Something went wrong : ' . $exception);
             $response->setSuccess(false);
-            $response->setMessage('Something went wrong');
+            $response->setMessage(__('Something went wrong'));
             return $response;
         }
 
@@ -121,67 +121,6 @@ class AccountService implements AccountServiceInterface
     }
 
     /**
-     * @param int $user_id
-     * @return AccountResponse
-     */
-    public function getAccountByUserId(int $user_id): AccountResponse
-    {
-        $response = new AccountResponse();
-        try {
-            $account = Account::where('user_id', $user_id)->first();
-            if (!$account){
-                $response->setSuccess(false);
-                $response->setMessage('Account not found');
-                return $response;
-            }
-
-            $response->setSuccess(true);
-            $response->setMessage('Account details fetched');
-            $accountDto = AccountDto::ModelToArray($account);
-            $response->setData(['data' => $accountDto]);
-            return $response;
-        }
-        catch (\Exception $exception){
-            Log::error('Something went wrong : ' . $exception);
-            $response->setSuccess(false);
-            $response->setMessage('Something went wrong');
-            return $response;
-        }
-    }
-
-    /**
-     * @param int $id
-     * @return AccountResponse
-     */
-    public function getAccountById(int $id): AccountResponse
-    {
-        $response = new AccountResponse();
-        try {
-            $account = Account::where('id', $id)->first();
-
-            if (!$account){
-                $response->setSuccess(false);
-                $response->setMessage('Account not found');
-                return $response;
-            }
-
-            $accountDto = AccountDto::ModelToArray($account);
-
-            $response->setSuccess(true);
-            $response->setMessage('Account details fetched');
-            $response->setData(['data' => $accountDto]);
-
-            return $response;
-        }
-        catch (\Exception $exception){
-            Log::error('Something went wrong : ' . $exception);
-            $response->setSuccess(false);
-            $response->setMessage('Something went wrong');
-            return $response;
-        }
-    }
-
-    /**
      * @return string
      */
     public function generateAccountNumber(): string
@@ -197,10 +136,10 @@ class AccountService implements AccountServiceInterface
      */
     public function hasAccount(User $user): bool
     {
-        if ($user->account){
-            return true;
+        if ($user->account->isEmpty()){
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -227,13 +166,13 @@ class AccountService implements AccountServiceInterface
         try {
             if (!$this->validatePin($newPin)){
                 $response->setSuccess(false);
-                $response->setMessage('Not a valid pin');
+                $response->setMessage(__('Not a valid pin'));
                 return $response;
             }
 
             if (!$this->hasAccount($user)) {
                 $response->setSuccess(false);
-                $response->setMessage('User does not have an account');
+                $response->setMessage(__('User does not have an account'));
                 return $response;
             }
 
@@ -241,14 +180,14 @@ class AccountService implements AccountServiceInterface
                 ->update(['pin' => Hash::make($newPin)]);
 
             $response->setSuccess(true);
-            $response->setMessage('Pin added');
+            $response->setMessage(__('Pin added'));
             return $response;
 
         }
         catch (\Exception $exception){
-            Log::error('Something went wrong : ' . $exception);
+            Log::error(__('Something went wrong : ' . $exception));
             $response->setSuccess(false);
-            $response->setMessage('Something went wrong');
+            $response->setMessage(__('Something went wrong'));
             return $response;
         }
     }
@@ -273,7 +212,7 @@ class AccountService implements AccountServiceInterface
         $response = new AccountResponse();
 
         $response->setSuccess(true);
-        $response->setMessage('Accounts detail fetched');
+        $response->setMessage(__('Accounts detail fetched'));
         $accountDto = AccountResource::collection($accounts);
         $response->setData(['accounts' => $accountDto]);
         return $response;

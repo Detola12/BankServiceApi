@@ -16,6 +16,7 @@ class AccountResource extends JsonResource
     {
         return [
             'accountNo' => $this->account_no,
+            'account_type' => $this->account_type,
             'user_id' => $this->user_id,
             'balance' => $this->balance
         ];

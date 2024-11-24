@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AccountType;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -20,6 +21,13 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'Adegboye',
             'email' => 'emma@test.com',
             'phone' => '08123415604'
+        ]);
+
+        AccountType::create([
+            'name' => 'savings'
+        ]);
+        AccountType::create([
+            'name' => 'current'
         ]);
     }
 }

@@ -8,7 +8,7 @@ class BaseResponse
 {
     protected bool $success;
     protected string $message;
-    protected array|null $data;
+    protected array|null|Collection $data;
 
     /**
      * Create a new class instance.
@@ -35,17 +35,17 @@ class BaseResponse
     }
 
     /**
-     * @param array|null $data
+     * @param array|null|Collection $data
      */
-    public function setData(array|null $data): void
+    public function setData(array|null|Collection $data): void
     {
         $this->data = $data;
     }
 
     /**
-     * @return array|null
+     * @return array|null|Collection
      */
-    public function getData(): array|null
+    public function getData(): array|null|Collection
     {
         return $this->data;
     }
