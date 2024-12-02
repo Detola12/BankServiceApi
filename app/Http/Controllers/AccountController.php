@@ -38,9 +38,10 @@ class AccountController extends Controller
     public function addPin(Request $request)
     {
         $request->validate([
-            'pin' => ['required','string', 'min:4', 'max:4']
+            'pin' => ['required','string', 'min:4', 'max:4'],
+            'type' => 'nullable|int|exists:account_types,id'
         ]);
-        $response = $this->accountService->setTransactionPin($request->user(), $request->pin);
+        $response = $this->accountService->setTransactionPin($request->user(), $request->type, $request->pin);
         return $response->compose();
     }
 
@@ -54,9 +55,10 @@ class AccountController extends Controller
     {
         $request->validate([
             'pin' => ['required','string','min:4','max:4'],
+            'type' => 'nullable|int|exists:account_types,id'
         ]);
 
-        $response = $this->accountService->resetPin($request->user(), $request->pin);
+        $response = $this->accountService->resetPin($request->user(), $request->type, $request->pin);
         return $response->compose();
     }
 

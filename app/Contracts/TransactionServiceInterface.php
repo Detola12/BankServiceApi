@@ -14,12 +14,12 @@ interface TransactionServiceInterface
 
     public function getAllUserCreditTransaction(User $user) : TransactionResponse;
 
-    public function initiateTransfer(User $sender, string $accountNo, float $amount) : TransactionResponse;
+    public function initiateTransfer(User $sender, int $type, string $accountNo, float $amount) : TransactionResponse;
 
-    public function initiateDeposit(User $user, float $amount) : TransactionResponse;
+    public function initiateDeposit(User $user, int $type, float $amount) : TransactionResponse;
 
-    public function initiateWithdraw(User $user, float $amount) : TransactionResponse;
+    public function initiateWithdraw(User $user, int $type, float $amount) : TransactionResponse;
 
-    public function checkBalance(User $user, float $amount) : bool;
+    public function checkBalance(User $user, int $type, float $amount) : bool;
 
 }

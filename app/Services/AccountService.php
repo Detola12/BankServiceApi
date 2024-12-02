@@ -24,13 +24,15 @@ class AccountService implements AccountServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @return AccountResponse
      */
     public function generateAccount(User $user, int $type): AccountResponse
     {
         $response = new AccountResponse();
         try {
-            if ($this->hasAccount($user)){
+
+            if ($this->hasAccount($user, $type)){
                 $response->setSuccess(false);
                 $response->setMessage(__('User already as an account'));
                 return $response;
@@ -42,7 +44,9 @@ class AccountService implements AccountServiceInterface
             if ($account) {
                 return $this->generateAccount($user, $type);
             }
-            $user->account()->create([
+
+            Account::create([
+                'user_id' => $user->id,
                 'account_no' => $accountNo,
                 'account_type' => $type
             ]);
@@ -64,13 +68,14 @@ class AccountService implements AccountServiceInterface
     /**
      * @param User $user
      * @param string $pin
+     * @param int $type
      * @return AccountResponse
      */
-    public function setTransactionPin(User $user, string $pin): AccountResponse
+    public function setTransactionPin(User $user, int $type, string $pin): AccountResponse
     {
         $response = new AccountResponse();
         try {
-            if ($this->hasSetupPin($user)){
+            if ($this->hasSetupPin($user, $type)){
                 $response->setSuccess(false);
                 $response->setMessage(__('User already has a pin'));
                 return $response;
@@ -82,13 +87,14 @@ class AccountService implements AccountServiceInterface
                 return $response;
             }
 
-            if (!$this->hasAccount($user)) {
+            if (!$this->hasAccount($user, $type)) {
                 $response->setSuccess(false);
                 $response->setMessage(__('User does not have an account'));
                 return $response;
             }
 
             Account::where('user_id', $user->id)
+                ->where('account_type', $type)
                 ->update(['pin' => Hash::make($pin)]);
 
             $response->setSuccess(true);
@@ -108,15 +114,17 @@ class AccountService implements AccountServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @return bool
      */
-    public function hasSetupPin(User $user): bool
+    public function hasSetupPin(User $user, int $type): bool
     {
-
-        if ($user->account->pin === null){
+        if ($type == 1 && $user->savings_account->pin === null){
             return false;
         }
-
+        if ($type == 2 && $user->current_account->pin === null){
+            return false;
+        }
         return true;
     }
 
@@ -132,14 +140,18 @@ class AccountService implements AccountServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @return bool
      */
-    public function hasAccount(User $user): bool
+    public function hasAccount(User $user, int $type): bool
     {
-        if ($user->account->isEmpty()){
-            return false;
+        if ($type == 1 && $user->savings_account){
+            return true;
         }
-        return true;
+        if ($type == 2 && $user->current_account){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -148,19 +160,16 @@ class AccountService implements AccountServiceInterface
      */
     public function validatePin(string $pin): bool
     {
-        if(ctype_digit($pin)){
-            return true;
-        }
-
-        return false;
+        return ctype_digit($pin) && strlen($pin) === 4;
     }
 
     /**
      * @param User $user
+     * @param int $type
      * @param string $newPin
      * @return AccountResponse
      */
-    public function resetPin(User $user, string $newPin): AccountResponse
+    public function resetPin(User $user, int $type, string $newPin): AccountResponse
     {
         $response = new AccountResponse();
         try {
@@ -170,13 +179,14 @@ class AccountService implements AccountServiceInterface
                 return $response;
             }
 
-            if (!$this->hasAccount($user)) {
+            if (!$this->hasAccount($user, $type)) {
                 $response->setSuccess(false);
                 $response->setMessage(__('User does not have an account'));
                 return $response;
             }
 
             Account::where('user_id', $user->id)
+                ->where('account_type', $type)
                 ->update(['pin' => Hash::make($newPin)]);
 
             $response->setSuccess(true);
@@ -194,15 +204,18 @@ class AccountService implements AccountServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @param string $pin
      * @return bool
      */
-    public function verifyPin(User $user, string $pin): bool
+    public function verifyPin(User $user, int $type, string $pin): bool
     {
-        if (Hash::check($pin, $user->account->pin)){
+        if ($type == 1 && Hash::check($pin, $user->savings_account->pin)){
             return true;
         }
-
+        if ($type == 2 && Hash::check($pin, $user->current_account->pin)){
+            return true;
+        }
         return false;
     }
 

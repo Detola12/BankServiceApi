@@ -50,8 +50,15 @@ class User extends Authenticatable
         ];
     }
 
-    public function account() : HasMany
+    public function savings_account() : HasOne
     {
-        return $this->hasMany(Account::class);
+        return $this->hasOne(Account::class)->where('account_type',1);
     }
+
+    public function current_account() : HasOne
+    {
+        return $this->hasOne(Account::class)->where('account_type',2);
+    }
+
+
 }

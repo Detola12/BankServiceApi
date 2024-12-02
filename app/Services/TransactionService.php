@@ -50,27 +50,37 @@ class TransactionService implements TransactionServiceInterface
     /**
      * @param User $sender
      * @param string $accountNo
+     * @param int $type
      * @param float $amount
      * @return TransactionResponse
      */
-    public function initiateTransfer(User $sender, string $accountNo, float $amount): TransactionResponse
+    public function initiateTransfer(User $sender, int $type, string $accountNo, float $amount): TransactionResponse
     {
         $response = new TransactionResponse();
 
         try {
-            if (!$this->checkBalance($sender, $amount)){
+            if (!$this->checkBalance($sender, $type, $amount)){
                 $response->setSuccess(false);
                 $response->setMessage('Insufficient Balance');
                 return $response;
             }
 
-            if ($sender->account->account_no == $accountNo){
-                $response->setSuccess(false);
-                $response->setMessage('Cannot transfer to same account');
-                return $response;
+            if ($type == 1){
+                if ($sender->savings_account->account_no == $accountNo){
+                    $response->setSuccess(false);
+                    $response->setMessage('Cannot transfer to same account');
+                    return $response;
+                }
+            }
+            if ($type == 2){
+                if ($sender->current_account->account_no == $accountNo){
+                    $response->setSuccess(false);
+                    $response->setMessage('Cannot transfer to same account');
+                    return $response;
+                }
             }
             $receiver = Account::where('account_no', $accountNo)->first();
-            $senderAccount = Account::where('user_id', $sender->id)->first();
+            $senderAccount = Account::where('user_id', $sender->id)->where('account_type', $type)->first();
             DB::beginTransaction();
 
             $senderAccount->balance -= $amount;
@@ -104,20 +114,16 @@ class TransactionService implements TransactionServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @param float $amount
      * @return TransactionResponse
      */
-    public function initiateDeposit(User $user, float $amount): TransactionResponse
+    public function initiateDeposit(User $user, int $type, float $amount): TransactionResponse
     {
         $response = new TransactionResponse();
 
         try {
-            $account = Account::where('user_id', $user->id)->first();
-            /*if (!$this->checkAmount($amount)){
-                $response->setSuccess(false);
-                $response->setMessage('Invalid Amount');
-                return $response;
-            }*/
+            $account = Account::where('user_id', $user->id)->where('account_type', $type)->first();
             if (!$account){
                 $response->setSuccess(false);
                 $response->setMessage('User does not have an account');
@@ -151,22 +157,23 @@ class TransactionService implements TransactionServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @param float $amount
      * @return TransactionResponse
      */
-    public function initiateWithdraw(User $user, float $amount): TransactionResponse
+    public function initiateWithdraw(User $user, int $type, float $amount): TransactionResponse
     {
         $response = new TransactionResponse();
 
         try {
-            $account = Account::where('user_id', $user->id)->first();
+            $account = Account::where('user_id', $user->id)->where('account_type', $type)->first();
             if (!$account){
                 $response->setSuccess(false);
                 $response->setMessage('User does not have an account');
                 return $response;
             }
 
-            if (!$this->checkBalance($user, $amount)){
+            if (!$this->checkBalance($user, $type, $amount)){
                 $response->setSuccess(false);
                 $response->setMessage('Insufficient Balance');
                 return $response;
@@ -203,28 +210,18 @@ class TransactionService implements TransactionServiceInterface
 
     /**
      * @param User $user
+     * @param int $type
      * @param float $amount
      * @return bool
      */
-    public function checkBalance(User $user, float $amount): bool
+    public function checkBalance(User $user, int $type, float $amount): bool
     {
-        if ($user->account->balance - $amount < 0){
+        if ($type == 1 && $user->savings_account->balance - $amount < 0){
             return false;
         }
-
-        return true;
-    }
-
-    /**
-     * @param float $amount
-     * @return bool
-     */
-    public function checkAmount(float $amount): bool
-    {
-        if ($amount < 0){
+        if ($type == 2 && $user->current_account->balance - $amount < 0){
             return false;
         }
-
         return true;
     }
 }

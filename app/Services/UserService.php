@@ -50,7 +50,7 @@ class UserService implements UserServiceInterface
         return $response;
     }
 
-    public function getAllUsers(int $size) : UserResponse
+    public function getAllUsers(int $size = 10) : UserResponse
     {
         $user = User::query()->paginate($size);
         $response = new UserResponse();

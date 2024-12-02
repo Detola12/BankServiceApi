@@ -9,16 +9,16 @@ interface AccountServiceInterface
 {
     public function generateAccountNumber() : string;
 
-    public function hasAccount(User $user) : bool;
+    public function hasAccount(User $user, int $type) : bool;
 
-    public function setTransactionPin(User $user, string $pin) : AccountResponse;
+    public function setTransactionPin(User $user, int $type, string $pin) : AccountResponse;
 
-    public function hasSetupPin(User $user) : bool;
+    public function hasSetupPin(User $user, int $type) : bool;
 
     public function validatePin(string $pin) : bool;
 
-    public function resetPin(User $user,string $newPin) : AccountResponse;
+    public function resetPin(User $user, int $type, string $newPin) : AccountResponse;
 
-    public function verifyPin(User $user, string $pin) : bool;
+    public function verifyPin(User $user, int $type, string $pin) : bool;
 
 }

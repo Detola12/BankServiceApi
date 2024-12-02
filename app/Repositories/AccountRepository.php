@@ -17,7 +17,7 @@ class AccountRepository
 
     }
 
-    public function getAllAccounts(int $type) : AccountResponse
+    public function getAllAccounts(int $type = null) : AccountResponse
     {
         $query = Account::query();
         if ($type){
